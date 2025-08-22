@@ -56,8 +56,11 @@ La API cuenta con una interfaz de documentación interactiva generada automátic
 URL de la Documentación: http://127.0.0.1:8000/docs
 
 POST /detect/
+
 <img width="1174" height="1187" alt="imagen" src="https://github.com/user-attachments/assets/3a8fb018-fcbc-4f2e-8d01-351052dcc869" />
-<img width="1152" height="113" alt="imagen" src="https://github.com/user-attachments/assets/87bc176c-880c-4e9e-b140-855b6d9f510a" />
+
+<img width="1152" height="113" alt="imagen" src="https://github.com/user-attachments/assets/87bc176c-880c-4e9e-b140-855b6d9f510a" />}
+
 <img width="1142" height="360" alt="imagen" src="https://github.com/user-attachments/assets/4b89477f-8114-4a57-9a3e-4d03ef5f3dc8" />
 
 
@@ -126,6 +129,8 @@ El modelo no pudo identificar ningún producto conocido. La API devuelve una lis
     JSON
 
     []
+    
+<img width="1125" height="763" alt="imagen" src="https://github.com/user-attachments/assets/06be8d77-5977-4aa9-abf3-288d04744d04" />
 
 🔮 Próximos Pasos
 
