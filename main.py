@@ -1,74 +1,96 @@
 # main.py
-import io
 import random
 import asyncio
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from PIL import Image
 
 # --- 1. CONFIGURACIÓN DE LA APLICACIÓN ---
 app = FastAPI(
-    title="API de Detección de Productos Agrícolas (VERSIÓN DE SIMULACIÓN ALEATORIA)",
-    description="Este es un mock. Devuelve respuestas simuladas y aleatorias para el desarrollo del frontend.",
-    version="1.0.1-mock-random"
+    title="API de Detección de Productos (SIMULACIÓN AVANZADA)",
+    description="Este mock devuelve respuestas realistas, incluyendo datos para el autollenado del formulario.",
+    version="1.0.2-mock-autofill"
 )
 
-# --- 2. DATOS DE SIMULACIÓN ---
-# Creamos respuestas falsas que imitan lo que el modelo real devolvería.
-MOCK_RESPONSES = {
-    "deteccion_multiple": [
-        {
-            "producto": "papa_sabanera",
-            "confianza": 0.92,
-            "caja_coordenadas": [150, 200, 350, 450]
-        },
-        {
-            "producto": "cebolla_cabezona",
-            "confianza": 0.85,
-            "caja_coordenadas": [400, 300, 500, 400]
-        }
-    ],
-    "deteccion_unica": [
-        {
-            "producto": "manzana_criolla",
-            "confianza": 0.95,
-            "caja_coordenadas": [110, 150, 400, 420]
-        }
-    ],
-    "sin_deteccion": [],
-    "deteccion_default": [
-        {
-            "producto": "fresa",
-            "confianza": 0.88,
-            "caja_coordenadas": [80, 120, 250, 300]
-        }
-    ]
+# --- 2. MAPAS DE DATOS (Simulan la lógica del backend) ---
+# Estos mapas son los que usarías en el backend real para derivar los datos.
+mapa_categorias = {
+    "papa_sabanera": "Tubérculos y Raíces", "cebolla_cabezona": "Hortalizas y Verduras",
+    "fresa": "Frutas", "mora": "Frutas", "queso_campesino": "Lácteos y Derivados"
+}
+mapa_unidades = {
+    "papa_sabanera": "Bulto", "cebolla_cabezona": "Atado", "fresa": "Canastilla",
+    "mora": "Canastilla", "queso_campesino": "Libra (lb)"
 }
 
-# --- 3. ENDPOINT DE BIENVENIDA ---
+# --- 3. DATOS DE SIMULACIÓN AVANZADA ---
+# Cada escenario ahora incluye la sección 'autofill_sugerido'.
+MOCK_SCENARIOS = {
+    "deteccion_unica": {
+        "detections": [
+            {
+                "producto": "fresa",
+                "confianza": 0.95,
+                "caja_coordenadas": [80, 120, 250, 300],
+                "autofill_sugerido": {
+                    "nombre_producto": "Fresa",
+                    "categoria": "Frutas",
+                    "unidad_venta": "Canastilla"
+                }
+            }
+        ]
+    },
+    "deteccion_multiple": {
+        "detections": [
+            {
+                "producto": "papa_sabanera",
+                "confianza": 0.92,
+                "caja_coordenadas": [150, 200, 350, 450],
+                "autofill_sugerido": {
+                    "nombre_producto": "Papa Sabanera",
+                    "categoria": "Tubérculos y Raíces",
+                    "unidad_venta": "Bulto"
+                }
+            },
+            {
+                "producto": "cebolla_cabezona",
+                "confianza": 0.85,
+                "caja_coordenadas": [400, 300, 500, 400],
+                "autofill_sugerido": {
+                    "nombre_producto": "Cebolla Cabezona",
+                    "categoria": "Hortalizas y Verduras",
+                    "unidad_venta": "Atado"
+                }
+            }
+        ]
+    },
+    "sin_deteccion": {
+        "detections": []
+    }
+}
+
+# --- 4. ENDPOINTS ---
 @app.get("/", summary="Endpoint de Bienvenida")
 def read_root():
-    return {"message": "Bienvenido a la API de simulación aleatoria. El endpoint /detect/ devolverá datos de prueba diferentes cada vez."}
+    return {"message": "Bienvenido a la API de simulación con autollenado."}
 
-# --- 4. ENDPOINT DE DETECCIÓN (SIMULADO Y ALEATORIO) ---
-@app.post("/detect/", summary="Detectar productos (Simulado y Aleatorio)")
+@app.post("/detect/", summary="Detectar productos y sugerir autollenado (Simulado)")
 async def detect_products(file: UploadFile = File(..., description="Imagen a procesar")):
     """
-    **Este es un endpoint simulado y aleatorio.** Ignora el contenido y el nombre del archivo. Devuelve una de las 
-    respuestas predefinidas al azar para simular el comportamiento real del modelo.
+    **Este es un endpoint de simulación avanzada.** Devuelve aleatoriamente uno de los 
+    escenarios predefinidos (detección única, múltiple o ninguna).
+
+    La respuesta ahora incluye un objeto `autofill_sugerido` por cada detección,
+    listo para ser usado por el frontend para llenar el formulario.
     """
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="El archivo subido no es una imagen.")
 
-    # >>> CAMBIO PRINCIPAL: LÓGICA ALEATORIA <<<
-    # 1. Creamos una lista con todos los posibles resultados.
-    posibles_respuestas = list(MOCK_RESPONSES.values())
+    # Elige uno de los escenarios al azar
+    lista_escenarios = list(MOCK_SCENARIOS.values())
+    respuesta_aleatoria = random.choice(lista_escenarios)
     
-    # 2. Elegimos uno de esos resultados al azar.
-    respuesta_aleatoria = random.choice(posibles_respuestas)
+    print(f"Simulando respuesta aleatoria. Escenario enviado: {respuesta_aleatoria}")
     
-    print(f"Simulando respuesta aleatoria. Respuesta enviada: {respuesta_aleatoria}")
-    
-    # Simulamos un pequeño retraso para que parezca más realista
+    # Simula un retraso de red
     await asyncio.sleep(random.uniform(0.5, 1.5))
     
     return respuesta_aleatoria
