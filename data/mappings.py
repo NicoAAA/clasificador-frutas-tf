@@ -20,6 +20,7 @@ MAPA_CLASIFICACION = {
     "vegetable": "Verduras",
 
     # Frutas (fresa es clave en Cundinamarca)
+    "apple": "Frutas",
     "strawberry": "Frutas",
     "blackberry": "Frutas",
     "cape gooseberry": "Frutas",  # Uchuva
@@ -70,7 +71,7 @@ DICCIONARIO_TRADUCCION_ES = {
     
     # Frutas
     "Strawberry": "Fresa", "Blackberry": "Mora", "Cape Gooseberry": "Uchuva",
-    "Tamarillo": "Tomate de Árbol",
+    "Tamarillo": "Tomate de Árbol", "Apple": "Manzana", 
     
     # Granos y Legumbres
     "Pea": "Arveja", "Fava Bean": "Haba", "Broad Bean": "Haba",
@@ -87,4 +88,8 @@ DICCIONARIO_TRADUCCION_ES = {
 
     # Flores
     "Flower": "Flor", "Rose": "Rosa", "Carnation": "Clavel", "Plant": "Planta"
+}
+# Etiquetas genéricas que queremos ignorar en la clasificación principal.
+ETIQUETAS_GENERICAS_A_IGNORAR = {
+    "Food", "Produce", "Plant", "Vegetable", "Fruit", "Dish", "Meal"
 }

@@ -1,139 +1,136 @@
-API de Detección de Productos Agrícolas 🥕
+# API de Clasificación de Productos Agrícolas (Arquitectura Limpia)
 
-Este documento proporciona la información necesaria para que el equipo de Frontend pueda entender, ejecutar y consumir la API para la detección de productos agrícolas.
+Esta API permite clasificar productos agrícolas de Cundinamarca en categorías predefinidas usando un modelo de IA real desplegado en AWS Rekognition. Está diseñada para ser fácilmente consumida desde aplicaciones frontend como React Native, así como por otros clientes.
 
-⚠️ Estado Actual: Modo de Simulación (Mock)
+## Estructura del Proyecto
 
-Es muy importante entender que la API se encuentra actualmente en modo de simulación. Esto significa que NO está utilizando un modelo de Inteligencia Artificial real.
+- `main.py`: Punto de entrada de la API (FastAPI).
+- `api/router.py`: Define los endpoints principales.
+- `services/classifier.py`: Lógica de clasificación y comunicación con AWS Rekognition.
+- `data/mappings.py`: Diccionarios de mapeo y traducción de etiquetas.
+- `requirements.txt`: Dependencias del proyecto.
 
-    Comportamiento: La API ignora la imagen que se sube y devuelve una respuesta aleatoria predefinida.
+## Instalación y Ejecución
 
-    Propósito: El objetivo de esta versión es desbloquear al equipo de Frontend, permitiéndoles construir y probar la interfaz de usuario para todos los escenarios posibles (detección única, múltiple o fallida) sin tener que esperar a que el modelo real esté entrenado.
+1. Instala las dependencias:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Ejecuta el servidor:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   Por defecto, la API estará disponible en `http://127.0.0.1:8000`.
 
-🚀 Cómo Empezar (Running Locally)
+## Endpoints Principales
 
-Para ejecutar la API en tu entorno de desarrollo local, sigue estos pasos:
+### 1. Bienvenida
+- **GET /**
+  - Respuesta: `{ "message": "Bienvenido a la API de Clasificación de Productos" }`
 
-1. Prerrequisitos
-
-    Python 3.8 o superior
-
-    pip y venv
-
-2. Instalación
-
-    Clona este repositorio en tu máquina local.
-
-    Abre una terminal en la raíz del proyecto y crea un entorno virtual:
-    Bash
-
-python -m venv venv
-
-Activa el entorno virtual:
-
-    En macOS/Linux: source venv/bin/activate
-
-    En Windows: venv\Scripts\activate
-
-Instala todas las dependencias con un solo comando usando el archivo requirements.txt:
-Bash
-
-    pip install -r requirements.txt
-
-3. Ejecutar el Servidor
-
-Una vez instaladas las dependencias, inicia el servidor de desarrollo con el siguiente comando:
-Bash
-
-uvicorn main:app --reload
-
-La API estará disponible en http://127.0.0.1:8000.
-
-Endpoints de la API
-
-La API cuenta con una interfaz de documentación interactiva generada automáticamente por FastAPI. Puedes acceder a ella para probar los endpoints de forma visual.
-
-URL de la Documentación: http://127.0.0.1:8000/docs
-
-POST /detect/
-
-<img width="1174" height="1187" alt="imagen" src="https://github.com/user-attachments/assets/3a8fb018-fcbc-4f2e-8d01-351052dcc869" />
-
-
-<img width="1152" height="113" alt="imagen" src="https://github.com/user-attachments/assets/87bc176c-880c-4e9e-b140-855b6d9f510a" />
-
-
-<img width="1142" height="360" alt="imagen" src="https://github.com/user-attachments/assets/4b89477f-8114-4a57-9a3e-4d03ef5f3dc8" />
-
-
-Este es el endpoint principal. Se encarga de recibir una imagen y devolver los productos detectados en ella.
-
-    Método: POST
-
-    Descripción: Recibe un archivo de imagen y devuelve una lista de objetos, donde cada objeto es un producto detectado.
-
-    Cuerpo de la Petición (Request Body): multipart/form-data
-
-        key: file
-
-        value: El archivo de imagen (ej. imagen_del_producto.jpg).
-
-Posibles Respuestas del Servidor (Simuladas)
-
-Cada vez que llames a este endpoint, recibirás aleatoriamente una de las siguientes tres estructuras de respuesta. Esto te permite probar todos los flujos de la aplicación.
-
-✅ Escenario 1: Detección Múltiple
-
-El modelo encuentra varios productos en la imagen. La API devuelve una lista con dos o más objetos.
-
-    Código de Respuesta: 200 OK
-
-    Cuerpo de la Respuesta:
-    JSON
-
-    [
-      {
-        "producto": "papa_sabanera",
-        "confianza": 0.92,
-        "caja_coordenadas": [150, 200, 350, 450]
+### 2. Clasificación de Producto
+- **POST /api/v1/classify/**
+  - **Descripción:** Recibe una imagen y devuelve la categoría y nombre del producto detectado.
+  - **Body:** FormData con el campo `file` (imagen).
+  - **Respuesta exitosa:**
+    ```json
+    {
+      "sugerencia_principal": {
+        "nombre_producto": "Papa",
+        "categoria": "Verduras",
+        "confianza": 0.98,
+        "caja_coordenadas": [0.1, 0.2, 0.3, 0.4]
       },
-      {
-        "producto": "cebolla_cabezona",
-        "confianza": 0.85,
-        "caja_coordenadas": [400, 300, 500, 400]
-      }
-    ]
+      "sugerencias_alternativas": [
+        {
+          "nombre_producto": "Zanahoria",
+          "confianza": 0.85,
+          "caja_coordenadas": [0.5, 0.6, 0.2, 0.3]
+        }
+      ]
+    }
+    ```
+  - **Errores:**
+    - 400: El archivo no es una imagen.
+    - 503: Error de comunicación con AWS.
+    - 500: Error interno del servidor.
 
-✅ Escenario 2: Detección Única
+## Integración con React Native
 
-El caso ideal donde se encuentra un solo producto. La API devuelve una lista con un solo objeto.
+Puedes consumir el endpoint `/api/v1/classify/` desde React Native usando `fetch` o librerías como `axios`. Ejemplo usando `fetch`:
 
-    Código de Respuesta: 200 OK
+```javascript
+const formData = new FormData();
+formData.append('file', {
+  uri: imageUri, // Ruta local de la imagen
+  type: 'image/jpeg',
+  name: 'foto.jpg',
+});
 
-    Cuerpo de la Respuesta:
-    JSON
+fetch('http://127.0.0.1:8000/api/v1/classify/', {
+  method: 'POST',
+  body: formData,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+})
+  .then(response => response.json())
+  .then(data => {
+    // Procesa la respuesta
+    console.log(data);
+  })
+  .catch(error => {
+    // Maneja errores
+    console.error(error);
+  });
+```
 
-    [
-      {
-        "producto": "manzana_criolla",
-        "confianza": 0.95,
-        "caja_coordenadas": [110, 150, 400, 420]
-      }
-    ]
+> **Nota:** Si tu API está en un servidor remoto, reemplaza la URL por la IP pública o dominio.
 
-✅ Escenario 3: Sin Detección
+## Categorías y Traducciones
 
-El modelo no pudo identificar ningún producto conocido. La API devuelve una lista vacía.
+La API traduce automáticamente los nombres detectados por AWS Rekognition al español y los agrupa en categorías como:
+- Verduras
+- Frutas
+- Granos y Legumbres
+- Lácteos y Derivados
+- Carnes Frescas
+- Huevos y Derivados
+- Panadería y Repostería
+- Miel y Derivados Apícolas
+- Plantas y Flores
 
-    Código de Respuesta: 200 OK
+Consulta el archivo `data/mappings.py` para ver el mapeo completo.
 
-    Cuerpo de la Respuesta:
-    JSON
+## Ejemplo de Respuesta
 
-    []
-    
-<img width="1125" height="763" alt="imagen" src="https://github.com/user-attachments/assets/06be8d77-5977-4aa9-abf3-288d04744d04" />
+```json
+{
+  "sugerencia_principal": {
+    "nombre_producto": "Fresa",
+    "categoria": "Frutas",
+    "confianza": 0.97,
+    "caja_coordenadas": [0.12, 0.34, 0.22, 0.18]
+  },
+  "sugerencias_alternativas": [
+    {
+      "nombre_producto": "Manzana",
+      "confianza": 0.80,
+      "caja_coordenadas": [0.45, 0.23, 0.15, 0.20]
+    }
+  ]
+}
+```
 
-🔮 Próximos Pasos
+## Extensión y Personalización
 
-Una vez que el modelo de IA esté entrenado, el motor interno de este endpoint será reemplazado. Sin embargo, el contrato de la API (la forma en que se envía la petición y la estructura de la respuesta JSON) permanecerá idéntico. La transición será transparente para la aplicación frontend.
+- Puedes modificar los diccionarios en `data/mappings.py` para agregar nuevas categorías o traducciones.
+- La lógica de clasificación está en `services/classifier.py`.
+
+## Recomendaciones para Producción
+- Configura las credenciales de AWS Rekognition correctamente.
+- Usa HTTPS en producción.
+- Considera desplegar con Docker o en servicios cloud.
+
+## Licencia
+Este proyecto es de uso libre para fines educativos y de desarrollo.
