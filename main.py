@@ -7,7 +7,6 @@ app = FastAPI(
     title="API de Clasificación de Productos - Arquitectura Limpia",
     description="Clasifica productos agrícolas de Cundinamarca en categorías predefinidas.",
     version="5.0.0-clean-architecture",
-    root_path="/default/miApiClasificador" 
 )
 
 # Incluimos las rutas definidas en el router de la API bajo el prefijo /api/v1
