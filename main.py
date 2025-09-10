@@ -1,6 +1,7 @@
 # main.py
 from fastapi import FastAPI
 from api.router import router as api_router
+from mangum import Mangum 
 
 app = FastAPI(
     title="API de Clasificación de Productos - Arquitectura Limpia",
@@ -15,3 +16,5 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/", summary="Endpoint de Bienvenida")
 def read_root():
     return {"message": "Bienvenido a la API de Clasificación de Productos"}
+
+handler = Mangum(app)

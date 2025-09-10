@@ -1,0 +1,28 @@
+# Control de versiones
+.git
+.gitignore
+
+# Archivo de Docker (no se copia a sí mismo)
+.dockerignore
+
+# Entorno virtual y dependencias
+venv
+.venv
+env
+__pycache__
+*.pyc
+node_modules
+
+# Archivos de entorno y secretos
+.env
+.env.*
+*.env
+
+# Herramientas de desarrollo y logs
+.vscode
+.idea
+logs
+*.log
+
+# Documentación (no es necesaria en la app)
+README.md
