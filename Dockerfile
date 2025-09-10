@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8000
 
 # El comando que Lambda usará para iniciar tu aplicación
-CMD ["main.app"]
+CMD ["main.handler"]
