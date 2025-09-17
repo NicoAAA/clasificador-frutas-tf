@@ -1,13 +1,17 @@
 # services/classifier.py
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from data.mappings import MAPA_CLASIFICACION, DICCIONARIO_TRADUCCION_ES
+from data.mappings import MAPA_CLASIFICACION, DICCIONARIO_TRADUCCION_ES, MAPA_UNIDADES
+
 
 def _clasificar_y_traducir_producto(response_aws: dict):
     """
     Función interna que procesa la respuesta de AWS.
+    --- MODIFICADO ---
+    Ahora genera una descripción más natural.
     """
-    labels_ordenadas = sorted(response_aws.get('Labels', []), key=lambda x: x.get('Confidence', 0), reverse=True)
+    labels = response_aws.get('Labels', [])
+    labels_ordenadas = sorted(labels, key=lambda x: x.get('Confidence', 0), reverse=True)
 
     for label in labels_ordenadas:
         nombre_en_ingles = label.get('Name')
@@ -17,15 +21,24 @@ def _clasificar_y_traducir_producto(response_aws: dict):
             categoria_asignada = MAPA_CLASIFICACION[nombre_en_ingles_lower]
             nombre_traducido = DICCIONARIO_TRADUCCION_ES.get(nombre_en_ingles, nombre_en_ingles)
             
+            # Buscamos la unidad de medida sugerida
+            unidad_sugerida = MAPA_UNIDADES.get(nombre_en_ingles_lower, 'unidad')
+
+            # --- ¡LÍNEA MODIFICADA! ---
+            # En lugar de listar etiquetas, creamos una descripción más útil.
+            descripcion_sugerida = f"{nombre_traducido} de alta calidad. Producto clasificado en la categoría de {categoria_asignada}."
+            
             sugerencia = {
                 "nombre_producto": nombre_traducido,
                 "categoria": categoria_asignada,
-                "confianza": round(label.get('Confidence', 0) / 100, 2)
+                "confianza": round(label.get('Confidence', 0) / 100, 2),
+                "descripcion_sugerida": descripcion_sugerida, # <-- Campo con la nueva descripción
+                "unidad_medida_sugerida": unidad_sugerida
             }
-            # Devuelve tanto la sugerencia principal como la respuesta completa por si es útil
-            return {"sugerencia_principal": sugerencia, "detecciones_completas": response_aws.get('Labels', [])}
             
-    return {"sugerencia_principal": None, "detecciones_completas": response_aws.get('Labels', [])}
+            return {"sugerencia_principal": sugerencia, "detecciones_completas": labels}
+            
+    return {"sugerencia_principal": None, "detecciones_completas": labels}
 
 def analizar_imagen_con_aws(image_bytes: bytes):
     """
