@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.router import router as api_router
 from mangum import Mangum 
 
@@ -8,7 +9,15 @@ app = FastAPI(
     description="Clasifica productos agrícolas de Cundinamarca en categorías predefinidas.",
     version="5.0.0-clean-architecture",
 )
+origins = ["*"]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Permite todos los métodos (GET, POST, etc.)
+    allow_headers=["*"], # Permite todas las cabeceras
+)
 # Incluimos las rutas definidas en el router de la API bajo el prefijo /api/v1
 # Ahora tu endpoint será: http://127.0.0.1:8000/api/v1/classify/
 app.include_router(api_router, prefix="/api/v1")

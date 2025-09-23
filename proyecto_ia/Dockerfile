@@ -1,18 +1,18 @@
-# Usa una imagen base oficial de AWS para Python en Lambda
-FROM public.ecr.aws/lambda/python:3.12
+# Usa la imagen base oficial de AWS para Python 3.10. Esto es el cambio clave.
+FROM public.ecr.aws/lambda/python:3.10
 
-# Copia el archivo de requerimientos
-COPY requirements.txt ./
+# Establece el directorio de trabajo dentro del contenedor.
+WORKDIR /app
 
-# Instala las dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
+# Copia primero el archivo de dependencias para aprovechar el caché de Docker.
+COPY requirements.txt .
 
-# Copia todo el código de tu proyecto a la imagen
-# (Aquí es donde el .dockerignore hace su magia, excluyendo lo que no se necesita)
+# Instala las dependencias.
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# Copia todo el código de tu aplicación al directorio de trabajo.
 COPY . .
 
-# Expone el puerto que usa FastAPI (buena práctica)
-EXPOSE 8000
-
-# El comando que Lambda usará para iniciar tu aplicación
+# Comando que AWS Lambda usará para iniciar la aplicación.
+# En el contexto de la imagen base de AWS, este comando SÍ funciona correctamente.
 CMD ["main.handler"]
