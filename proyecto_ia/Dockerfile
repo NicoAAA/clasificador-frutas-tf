@@ -1,18 +1,20 @@
-# Usa la imagen base oficial de AWS para Python 3.10. Esto es el cambio clave.
-FROM public.ecr.aws/lambda/python:3.10
+# Usa una imagen base de Python delgada. No necesitas la de AWS Lambda.
+FROM python:3.11-slim
 
-# Establece el directorio de trabajo dentro del contenedor.
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia primero el archivo de dependencias para aprovechar el caché de Docker.
+# Copia e instala los requerimientos
 COPY requirements.txt .
+# Agrega gunicorn a tus requerimientos
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala las dependencias.
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
-
-# Copia todo el código de tu aplicación al directorio de trabajo.
+# Copia el resto de tu código
 COPY . .
 
-# Comando que AWS Lambda usará para iniciar la aplicación.
-# En el contexto de la imagen base de AWS, este comando SÍ funciona correctamente.
-CMD ["main.handler"]
+# Expone el puerto que usará tu aplicación
+EXPOSE 8000
+
+# ¡Este es el cambio clave!
+# Inicia el servidor Gunicorn. Cloud Run inyectará la variable $PORT.
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
