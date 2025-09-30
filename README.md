@@ -62,7 +62,7 @@ Una vez que la instalación esté completa, puedes iniciar el servidor de la API
 
 La API expone un único endpoint para realizar las clasificaciones.
 
-### `/predict`
+### `http://127.0.0.1:8000/api/v1/classify/`
 
 * **Método:** `POST`
 * **Descripción:** Recibe una imagen y devuelve la clase de fruta predicha junto con el nivel de confianza del modelo.
@@ -74,6 +74,12 @@ Si la imagen se procesa correctamente, la API devolverá un objeto JSON con la p
 
 ```json
 {
-  "prediction": "Manzana",
-  "confidence": 0.987512469291687
+    "sugerencia_principal": {
+        "nombre_producto": "Fresa",
+        "categoria": "Frutas",
+        "confianza": 1.0,
+        "descripcion_sugerida": "Fresas frescas y jugosas, seleccionadas por su color rojo intenso y dulzura natural. Ideales para disfrutar solas, en postres, batidos o ensaladas, aportando un toque de sabor y frescura a tus preparaciones.",
+        "unidad_medida_sugerida": "kg",
+        "precio_mercado": null
+    }
 }
