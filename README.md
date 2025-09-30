@@ -1,139 +1,79 @@
-API de Detección de Productos Agrícolas 🥕
+# API de Clasificación de Frutas con TensorFlow y FastAPI
 
-Este documento proporciona la información necesaria para que el equipo de Frontend pueda entender, ejecutar y consumir la API para la detección de productos agrícolas.
+Esta es una API simple y eficiente diseñada para clasificar imágenes de frutas. Utiliza un modelo de Deep Learning entrenado con **TensorFlow/Keras** y se sirve a través de un backend construido con **FastAPI**.
 
-⚠️ Estado Actual: Modo de Simulación (Mock)
+El modelo actual es capaz de distinguir entre tres tipos de frutas:
+* 🍎 Manzana
+* 🍌 Banano
+* 🍊 Naranja
 
-Es muy importante entender que la API se encuentra actualmente en modo de simulación. Esto significa que NO está utilizando un modelo de Inteligencia Artificial real.
 
-    Comportamiento: La API ignora la imagen que se sube y devuelve una respuesta aleatoria predefinida.
 
-    Propósito: El objetivo de esta versión es desbloquear al equipo de Frontend, permitiéndoles construir y probar la interfaz de usuario para todos los escenarios posibles (detección única, múltiple o fallida) sin tener que esperar a que el modelo real esté entrenado.
+## 📋 Prerrequisitos
 
-🚀 Cómo Empezar (Running Locally)
+Para poder ejecutar este proyecto, necesitarás tener instalado lo siguiente en tu sistema:
 
-Para ejecutar la API en tu entorno de desarrollo local, sigue estos pasos:
+* **Python 3.8** o superior.
+* **pip** (el gestor de paquetes de Python).
 
-1. Prerrequisitos
+---
 
-    Python 3.8 o superior
+## 🚀 Instalación
 
-    pip y venv
+Sigue estos sencillos pasos para poner en marcha el proyecto en tu máquina local.
 
-2. Instalación
+1.  **Clona el repositorio:**
+    Abre tu terminal y ejecuta el siguiente comando para descargar el código fuente.
+    ```bash
+    git clone [https://github.com/NicoAAA/clasificador-frutas-tf.git](https://github.com/NicoAAA/clasificador-frutas-tf.git)
+    ```
 
-    Clona este repositorio en tu máquina local.
+2.  **Navega al directorio del proyecto:**
+    ```bash
+    cd clasificador-frutas-tf
+    ```
 
-    Abre una terminal en la raíz del proyecto y crea un entorno virtual:
-    Bash
-
-python -m venv venv
-
-Activa el entorno virtual:
-
-    En macOS/Linux: source venv/bin/activate
-
-    En Windows: venv\Scripts\activate
-
-Instala todas las dependencias con un solo comando usando el archivo requirements.txt:
-Bash
-
+3.  **Instala las dependencias:**
+    El proyecto tiene un archivo `requirements.txt` que lista todas las bibliotecas de Python necesarias. Instálalas con pip.
+    ```bash
     pip install -r requirements.txt
+    ```
+---
+## ⚡ Uso
 
-3. Ejecutar el Servidor
+Una vez que la instalación esté completa, puedes iniciar el servidor de la API con un solo comando.
 
-Una vez instaladas las dependencias, inicia el servidor de desarrollo con el siguiente comando:
-Bash
+* **Ejecuta el servidor:**
+    ```bash
+    uvicorn main:app --reload
+    ```
+    El flag `--reload` es muy útil durante el desarrollo, ya que reinicia el servidor automáticamente cada vez que detecta un cambio en el código.
 
-uvicorn main:app --reload
+* **Accede a la API:**
+    El servidor estará activo y escuchando en `http://127.0.0.1:8000`.
 
-La API estará disponible en http://127.0.0.1:8000.
-
-Endpoints de la API
-
-La API cuenta con una interfaz de documentación interactiva generada automáticamente por FastAPI. Puedes acceder a ella para probar los endpoints de forma visual.
-
-URL de la Documentación: http://127.0.0.1:8000/docs
-
-POST /detect/
-
-<img width="1174" height="1187" alt="imagen" src="https://github.com/user-attachments/assets/3a8fb018-fcbc-4f2e-8d01-351052dcc869" />
-
-
-<img width="1152" height="113" alt="imagen" src="https://github.com/user-attachments/assets/87bc176c-880c-4e9e-b140-855b6d9f510a" />
-
-
-<img width="1142" height="360" alt="imagen" src="https://github.com/user-attachments/assets/4b89477f-8114-4a57-9a3e-4d03ef5f3dc8" />
-
-
-Este es el endpoint principal. Se encarga de recibir una imagen y devolver los productos detectados en ella.
-
-    Método: POST
-
-    Descripción: Recibe un archivo de imagen y devuelve una lista de objetos, donde cada objeto es un producto detectado.
-
-    Cuerpo de la Petición (Request Body): multipart/form-data
-
-        key: file
-
-        value: El archivo de imagen (ej. imagen_del_producto.jpg).
-
-Posibles Respuestas del Servidor (Simuladas)
-
-Cada vez que llames a este endpoint, recibirás aleatoriamente una de las siguientes tres estructuras de respuesta. Esto te permite probar todos los flujos de la aplicación.
-
-✅ Escenario 1: Detección Múltiple
-
-El modelo encuentra varios productos en la imagen. La API devuelve una lista con dos o más objetos.
-
-    Código de Respuesta: 200 OK
-
-    Cuerpo de la Respuesta:
-    JSON
-
-    [
-      {
-        "producto": "papa_sabanera",
-        "confianza": 0.92,
-        "caja_coordenadas": [150, 200, 350, 450]
-      },
-      {
-        "producto": "cebolla_cabezona",
-        "confianza": 0.85,
-        "caja_coordenadas": [400, 300, 500, 400]
-      }
-    ]
-
-✅ Escenario 2: Detección Única
-
-El caso ideal donde se encuentra un solo producto. La API devuelve una lista con un solo objeto.
-
-    Código de Respuesta: 200 OK
-
-    Cuerpo de la Respuesta:
-    JSON
-
-    [
-      {
-        "producto": "manzana_criolla",
-        "confianza": 0.95,
-        "caja_coordenadas": [110, 150, 400, 420]
-      }
-    ]
-
-✅ Escenario 3: Sin Detección
-
-El modelo no pudo identificar ningún producto conocido. La API devuelve una lista vacía.
-
-    Código de Respuesta: 200 OK
-
-    Cuerpo de la Respuesta:
-    JSON
-
-    []
+* **Documentación Interactiva (Swagger UI):**
+    FastAPI genera automáticamente una documentación interactiva. Puedes acceder a ella visitando `http://12.0.0.1:8000/docs` en tu navegador. Desde allí, podrás probar la API directamente.
     
-<img width="1125" height="763" alt="imagen" src="https://github.com/user-attachments/assets/06be8d77-5977-4aa9-abf3-288d04744d04" />
+    
 
-🔮 Próximos Pasos
+---
+## 🤖 Endpoint de la API
 
-Una vez que el modelo de IA esté entrenado, el motor interno de este endpoint será reemplazado. Sin embargo, el contrato de la API (la forma en que se envía la petición y la estructura de la respuesta JSON) permanecerá idéntico. La transición será transparente para la aplicación frontend.
+La API expone un único endpoint para realizar las clasificaciones.
+
+### `/predict`
+
+* **Método:** `POST`
+* **Descripción:** Recibe una imagen y devuelve la clase de fruta predicha junto con el nivel de confianza del modelo.
+* **Cuerpo de la Petición (`Request Body`):** Debes enviar los datos en formato `multipart/form-data`, con una clave llamada `file` que contenga el archivo de la imagen (por ejemplo, `.jpg`, `.png`, etc.).
+
+#### ✅ Respuesta Exitosa (Código 200)
+
+Si la imagen se procesa correctamente, la API devolverá un objeto JSON con la predicción y la confianza.
+
+```json
+{
+  "prediction": "Manzana",
+  "confidence": 0.987512469291687
+}
